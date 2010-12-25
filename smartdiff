@@ -1,0 +1,92 @@
+#!/usr/bin/perl -w
+use strict;
+use File::Temp;
+
+
+my ($old,$new)=(shift,shift);
+my @diffargs=@ARGV;
+if(!$old || !$new) {
+	print "usage: $0 old new [diffopts]";
+	exit 0;
+}
+
+
+$ENV{LANG}="C";
+
+sub diag {print STDERR @_,"\n"}
+
+my $handlerdir="handler.d";
+our @handlers;
+foreach my $h (<$handlerdir/*.pm>) {
+	next unless $h=~m/(\w+)\.pm$/;
+	push(@handlers, "smartdiff::$1");
+	require $h;
+}
+
+sub detect_handler($)
+{ my($file)=@_;
+	open(my $fd, "-|", "file", "--no-pad", "--brief", $file);
+	my $fileout=<$fd>;
+	close $fd;
+	diag "file said '$fileout'";
+	# find handler from file type
+#gzip compressed
+#Squashfs filesystem
+#ISO 9660 CD-ROM filesystem
+	foreach my $h (@handlers) {
+		#diag "trying $h";
+		return $h if $h->can_handle($fileout);
+	}
+	diag "no handler found";
+	return undef;
+}
+
+
+our $tmproot="/tmp/smartdiff";
+system("rm -rf $tmproot");
+mkdir $tmproot;
+sub prepare_diff($)
+{ my($f)=@_;
+	my $handler=detect_handler($f);
+	return undef unless $handler;
+	# create temp name
+	$handler=$handler->new($f);
+	diag ("tmpdir=".$handler->dir);
+	# use handler to unpack/mount
+	$handler->prepare;
+	return $handler;
+}
+sub cleanup_difftmp($)
+{ my($handler)=@_;
+	$handler->cleanup if $handler;
+}
+
+sub do_diff($$);
+sub do_diff($$)
+{
+	my($old,$new)=@_;
+	open(my $fd, "-|", "diff", @diffargs, $old, $new) or die "open/diff failed: $!";
+	my $linecount=0;
+	while((my $line=<$fd>)) {
+		if($line=~m/Binary files (.*) and (.*) differ/) {
+			my($oldf,$newf)=($1,$2);
+			my $oldtmp=prepare_diff($oldf);
+			my $newtmp=prepare_diff($newf);
+			my $same=0;
+			if($newtmp) {
+				diag "diffing into $oldf $newf";
+				$same=!do_diff($oldtmp->diffdata, $newtmp->diffdata);
+			}
+			cleanup_difftmp($oldtmp);
+			cleanup_difftmp($newtmp);
+			next if($same);
+		}
+		$linecount++;
+		print $line;
+	}
+	close $fd;
+	return($linecount);
+}
+
+exit do_diff($old,$new);
+
