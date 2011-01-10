@@ -4,7 +4,7 @@ use base 'basehandler';
 
 sub can_handle($)
 { my($class,$type)=@_;
-	$type=~m/^[a-zA-Z0-9 -]+ cpio archive/;
+	$type=~m/^[a-zA-Z0-9 -]*cpio archive/;
 }
 
 sub prepare

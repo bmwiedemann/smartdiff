@@ -1,4 +1,9 @@
 #!/usr/bin/perl -w
+# This file is part of the smartdiff project
+# it is by Bernhard M. Wiedemann 
+# and licensed under the GNU General Public License version 2 or later.
+# http://www.gnu.org/licenses/gpl-2.0.html
+
 use strict;
 use File::Temp;
 
@@ -68,7 +73,7 @@ sub do_diff($$)
 	open(my $fd, "-|", "diff", @diffargs, $old, $new) or die "open/diff failed: $!";
 	my $linecount=0;
 	while((my $line=<$fd>)) {
-		if($line=~m/Binary files (.*) and (.*) differ/) {
+		if($line=~m/^(?:Binary files)|(?:Files) (.*) and (.*) differ/) {
 			my($oldf,$newf)=($1,$2);
 			my $oldtmp=prepare_diff($oldf);
 			my $newtmp=prepare_diff($newf);
