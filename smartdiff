@@ -6,19 +6,20 @@
 
 use strict;
 use File::Temp;
+our $debug=0;
 
 
 my ($old,$new)=(shift,shift);
 my @diffargs=@ARGV;
 if(!$old || !$new) {
-	print "usage: $0 old new [diffopts]";
+	print "usage: $0 old new [diffopts]\n";
 	exit 0;
 }
 
 
 $ENV{LANG}="C";
 
-sub diag {print STDERR @_,"\n"}
+sub diag {return unless $debug; print STDERR @_,"\n"}
 
 my $handlerdir="handler.d";
 our @handlers;
