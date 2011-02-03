@@ -1,3 +1,9 @@
 smartdiff allows you to find the differences between files in containers.
-It can for example find changed lines of text files in cpio.gz files contained in squashfs filesystems on a iso image.
+It can for example find changed lines of text files in cpio.gz files contained in squashfs filesystems on an iso image.
 It also allows to add handlers for new types of containers.
+
+License: this code is licensed under GPLv2 or later, unless noted otherwise. 
+     See the COPYING file for details.
+
+Authors:
+  - Bernhard M. Wiedemann <bernhard+smartdiff lsmod de>
