@@ -1,18 +1,18 @@
-# unpack cpio
-package smartdiff::cpio;
+#!/usr/bin/perl -w
+# unpack tar
+package smartdiff::tar;
 use base 'basehandler';
+use strict;
 
 sub can_handle($)
 { my($class,$type)=@_;
-	$type=~m/^[a-zA-Z0-9 -]*cpio archive/;
+	$type=~m/^[a-zA-Z0-9 -]*tar archive/;
 }
 
 sub prepare
 { my $self=shift;
 	chdir $self->dir;
-	open(STDIN, "<", $self->{file});
-	system(qw"cpio -i");
-	open(STDIN, "<", "/dev/null");
+	system(qw"tar xf", $self->{file});
 	chdir $::tmproot;
 }
 
