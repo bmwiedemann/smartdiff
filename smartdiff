@@ -18,6 +18,7 @@ if(!$old || !$new) {
 
 
 $ENV{LANG}="C";
+$ENV{DIFF}||="diff";
 
 sub diag {return unless $debug; print STDERR @_,"\n"}
 
@@ -71,7 +72,7 @@ sub do_diff($$);
 sub do_diff($$)
 {
 	my($old,$new)=@_;
-	open(my $fd, "-|", "diff", @diffargs, $old, $new) or die "open/diff failed: $!";
+	open(my $fd, "-|", $ENV{DIFF}, @diffargs, $old, $new) or die "open/diff failed: $!";
 	my $linecount=0;
 	while((my $line=<$fd>)) {
 		if($line=~m/^(?:Binary files)|(?:Files) (.*) and (.*) differ/) {
