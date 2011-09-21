@@ -75,7 +75,7 @@ sub do_diff($$)
 	open(my $fd, "-|", $ENV{DIFF}, @diffargs, $old, $new) or die "open/diff failed: $!";
 	my $linecount=0;
 	while((my $line=<$fd>)) {
-		if($line=~m/^(?:Binary files)|(?:Files) (.*) and (.*) differ/) {
+		if($line=~m/^(?:(?:Binary files)|(?:Files)) (.*) and (.*) differ/) {
 			my($oldf,$newf)=($1,$2);
 			my $oldtmp=prepare_diff($oldf);
 			my $newtmp=prepare_diff($newf);
